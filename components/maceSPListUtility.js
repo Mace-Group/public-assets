@@ -37,7 +37,7 @@
 
 
 // ~~CONFIGURE HERE~~ set the global name required
-globalThis.maceSPListUtility = (function (namespaceObject) {
+export default (function (namespaceObject) {
   'use strict'
   console.log('Loading Module maceSPListUtility.js') // This is useful to trace any issues with load sequence
   const SemVer='2.1.1'
