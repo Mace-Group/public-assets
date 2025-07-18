@@ -55,7 +55,7 @@
 
 // During debugging & development, uncomment the following line to enable an intelligent editor to provide tooltips
 // import Vue from "https://cdnjs.cloudflare.com/ajax/libs/vue/3.3.4/vue.global.min.js"
-let dhgBootstrapWrapperPack  = {
+export default dhgBootstrapWrapperPack  = {
   install  (Vue, options) {
     
     Vue.component('vbToast', this.vbToast)
