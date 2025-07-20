@@ -223,8 +223,8 @@ globalThis.maceSPUserUtility = (function (namespaceObject) {
     namespaceObject.getAllSiteMembers = getAllSiteMembers
     namespaceObject.getAllSiteUsers = getAllSiteUsers
 
-    namespaceObject.getBaseUrl = () => this.SITE_BASE
-    namespaceObject.setBaseUrl = (url) => this.SITE_BASE = url
+    namespaceObject.getBaseUrl = () => SITE_BASE
+    namespaceObject.setBaseUrl = (url) => SITE_BASE = url
   
     return namespaceObject
   })(
