@@ -55,7 +55,7 @@
 
 // During debugging & development, uncomment the following line to enable an intelligent editor to provide tooltips
 // import Vue from "https://cdnjs.cloudflare.com/ajax/libs/vue/3.3.4/vue.global.min.js"
-export default {
+let dhgBootstrapWrapperPack  = {
   install  (Vue, options) {
     
     Vue.component('vbToast', this.vbToast)
@@ -1215,785 +1215,781 @@ export default {
   },
 
   LabelledControlGroup: {
-    name: 'LabelledControlGroup',
-    inheritAttrs: false,
-    props: {
-      label: {type: String, required: true},
-      placeholder:{type: String, required: false},
-      labelClass: {type: String, required: false, default: 'fs-5'}, // Label is fs-5 by default
-      type: {
-        validator(value, props) {
-          return ['text','textarea','number', 'percent','date','color','datetime-local','currency','select', 'checkboxes', 'switch', 'radio', 'lookup', 'lookupMulti'].includes(value)
-        }, default:'text'
-      },
-      required: {type: Boolean, required: false, default: false},
-      requiredIconName: {type: String, required: false, default: 'fa-asterisk'}, // Optional display icon override
-      modelValue: {required: true},
-  
-      options: {type: Array, required: false},
-      optionBackgroundColourProperty: {type: String, required: false}, // Property name of options item to hold a hex colour
-      optionForegroundColourProperty: {type: String, required: false}, // Property name of options item to hold a hex colour
-      optionValueProperty: {type: String, required: false, default: ''}, // Property name to bind value to
-      optionValuePropertyList: {type: Array, required: false, default: ['Id','ID','id', 'key','code', 'name']}, // Property names that *might* be an ID of an object (when not specified)
-      optionTextProperty: {type: String, required: false, default: ''}, // Property name to use for display text
-      optionFormatterFunction: {type: Function, required: false, default: null},
-      optionBindObject: {type: Boolean, required: false, default: false},
-      selectMulti: {type: Boolean, required: false, default: false},
-      
-      switchOnValue: {type: undefined, required: false, default: true},
-      switchOffValue: {type: undefined, required: false, default: false},
-      
-      missingColourClass: {type: String, required: false, default: 'text-danger'},
-      presentColourClass: {type: String, required: false, default: 'text-success'},
-      readonly: {type: Boolean, required: false, default: false},
-      suppressPrefixIcon: {type: Boolean, required: false, default: false},
-      
-      rows: {type: String, required: false, default: '3'},
-      min: {type: Number, required: false},
-      max: {type: Number, required: false},
-      step: {type: Number, required: false},
-     // fixedDecimals: {type: Number, required: false},
-      maxlength: {type: String, required: false, default: '255'}, // Particularly for single line input
-      currencyLocale: {type: String, required: false, default: 'en-GB'},
-      currency: {type: String, required: false, default: 'GBP'},
-  
-      // For SharePoint lookup lists source
-      lookupListName: {type: String, required: false},
-      lookupListSite: {type: String, required: false},
+  name: 'LabelledControlGroup',
+  inheritAttrs: false,
+  props: {
+    label: {type: String, required: true},
+    placeholder:{type: String, required: false},
+    labelClass: {type: String, required: false, default: 'fs-5'}, // Label is fs-5 by default
+    type: {
+      validator(value, props) {
+        return ['text','textarea','number', 'percent','date','color','datetime-local','currency','select', 'checkboxes', 'switch', 'radio', 'lookup', 'lookupMulti'].includes(value)
+      }, default:'text'
     },
-    emits: ['update:modelValue','checked'], // push out the standard edit event to the parent
-    expose:['requiredPass'],
-    data() {
-      return {
-        localId: null,
-        selectedItemToAddGroup: null,
-        boundSelectIndex: undefined,
-        pushedBoundSelectedValue: false,
-      }
-    },
-    watch:{
-      boundSelectIndex:{
-        handler(newIndex,oldIndex) {
-          if (newIndex === oldIndex){ 
-            console.log('unchanged boundSelectIndex triggered (watching abort!)')
-            return 
-          }
-          if (this.pushedBoundSelectedValue) return 
-          let newOption = this.options[newIndex]
-          let emitValue = this.optionBindObject ? newOption : this.getBestOptionValue(newOption)
-          this.$emit('update:modelValue', emitValue)
-        }
-      },
-      modelValue:{
-        immediate: true,
-        handler(newValue, oldValue) {
-          if (this.type === 'select') {
-            let idx = this.getOptionIndex(newValue)
-            this.pushedBoundSelectedValue = true
-            
-            if (idx > - 1){
-              this.boundSelectIndex = idx
-            } else {
-              this.boundSelectIndex = undefined
-            }
-            this.$nextTick(()=> this.pushedBoundSelectedValue = false)
-          }
-        }
-      }, 
-      options: {
-        flush:'post',
-        handler(newSet, oldSet){
-          // react to changes in options that may affect the selected index
-          let idxNow = this.boundSelectIndex
-          let idxAfter = this.getOptionIndex(this.modelValue)
-          if (idxAfter !== idxNow && typeof idxAfter === 'number' && idxAfter> -1){
-            this.pushedBoundSelectedValue = true
-            this.boundSelectIndex = idxAfter
-            this.$nextTick(()=> this.pushedBoundSelectedValue = false)
-          }
-        }
-      }
-    },
-    
-    computed:{
-      
-      haveValue() {
-        let v = this.modelValue
-        if (typeof v === 'string' &&  v === '') return false;
-        return !(R.isNil(v))
-      },
-      typeIconClass() {
-        let aClass= ['fas']
-        let iconName = ''
-        switch(this.type) {
-          case 'text':
-            iconName = 'fa-font'
-            break;
-          case 'textarea':
-            iconName = 'fa-pen-fancy'
-            break;
-          case 'number':
-            iconName = 'fa-hashtag'
-            break;
-          case 'percent':
-            iconName = 'fa-percent'
-            break;
-          case 'date':
-            iconName = 'fa-calendar'
-            break;
-          case 'color':
-            iconName = 'fa-palette'
-            break;
-          case 'datetime-local':
-            iconName = 'fa-clock'
-            break;
-          case 'currency':
-            iconName = 'fa-pound-sign'
-            break;
-          case 'select':
-            iconName = 'fa-list-ul'
-            break;
-          case 'checkboxes':
-            iconName = 'fa-check-double'
-            break
-          case 'radio': 
-            iconName = 'fa-check-circle'
-            break
-          case 'switch': 
-            // Does not use an icon because display layout differs to standard types
-            break
-          default:
-            break;
-        }
-        aClass.push(iconName)
-        return aClass
-      },
-      invalidIconClass () {
-        return  [
-          'fas',
-          this.requiredIconName,
-          this.missingColourClass
-        ]
-      },
-      validIconClass () {
-        return  [
-          'fas',
-          this.requiredIconName,
-          this.presentColourClass
-        ]
-      },
-      effectiveLabelClass() {
-        let textClasses = this.labelClass
-        const reTokens = /([a-z0-9-_]+ ?)/gi
-  
-        let out = ['form-label']
-        let mCol
-        while(mCol = reTokens.exec(textClasses)) {
-          out.push (mCol[1])
-        }
-        return out
-      },
-      
-      requiredPass () {
-        return this.required === false || this.haveValue
-      },
-      isDateType() {
-        return this.type === 'date' || this.type === 'datetime-local'
-      },
-      isBooleanType () {
-        let aTypes=['switch']
-        return aTypes.includes(this.type)
-      },
-      isNumberType() {
-        const aNumberTypes = ['number','percent','currency']
-        return aNumberTypes.includes(this.type)
-      },
-      isCurrencyType() {
-        const aNumberTypes = ['currency']
-        return aNumberTypes.includes(this.type)
-      },
-      renderedControlId () {
-        return `labelledControl-${this.localId}`
-      },
-      useGroup() {
-        let aNonGroupLayoutTypes = ['radio','checkboxes','switch']
-        let generateGroup = !aNonGroupLayoutTypes.includes(this.type)
-        if (this.type ==='select' && this.selectMulti) generateGroup = false //will need alternate UI of a box containing "badges" of items
-        return generateGroup
-        
-      },
-      getActiveOptionStyle () {
-        let oNoStyle ={}
-        if (this.options?.length > 0 &&   this.optionBackgroundColourProperty || this.optionForegroundColourProperty) {
-          let currentValue = this.modelValue
-          let aOpts = this.options.filter(opt => this.getBestOptionValue(opt) === currentValue)
-          if (aOpts.length) {
-            return this.getOptionStyle(aOpts[0])
-          }
-        }
-        return oNoStyle
-      },
-      modelValueAsNumber: {
-        get(){
-          if ( isNaN(this.modelValue)) {
-            return undefined
-          } else {
-           let value = parseFloat(this.modelValue)
-           return value //R.isNil(this.fixedDecimals) ? value :  value.toFixed(this.fixedDecimals)
-          }
-        },
-        set(newValue) {
-          let fValueRaw = null
-          if (typeof newValue === 'string') {
-            let reNonNumber = /[^\d\.\+\-]/g
-            let strippedValue = ('' + newValue).replace(reNonNumber,'')
-            fValueRaw = parseFloat(strippedValue)
-          } else {
-            fValueRaw = typeof newValue === 'number' ? newValue : parseFloat(newValue)
-          }
-          
-          if (isNaN(fValueRaw)){
-            this.$emit('update:modelValue', null)
-            this.$refs.num.value = ''
-            
-          } else {
-            let min = R.isNil(this.min) ? Number.NEGATIVE_INFINITY : this.min
-            let max = R.isNil(this.max) ? Number.POSITIVE_INFINITY : this.max
-            let fValueClamped = R.clamp(min, max, fValueRaw)
-          
-            
-            if (this.$refs.num.value != fValueClamped ) {
-              this.$refs.num.value = fValueClamped
-            }
-            this.$emit('update:modelValue', fValueClamped)
-          }
-  
-        }
-      },// () {return  parseFloat(this.modelValue)},
-      /**
-       * @description display the model value multiplied by 100 to express a decimal as a percentage
-       * This works un conjunction with the update logic that divides by 100
-       */
-      modelValueAsPercentage: {
-        get(){
-          let fValueRaw = this.modelValueAsNumber
-          if (isNaN(fValueRaw)) return  ''
-          //let min = R.isNil(this.min) ? Number.NEGATIVE_INFINITY : this.min
-          //let max = R.isNil(this.max) ? Number.POSITIVE_INFINITY : this.max
-          let fValueAsPct = this.decimalToPercent(fValueRaw)
-          return fValueAsPct
-        },
-        set(newValue) {
-          let fValueRaw = typeof newValue === 'number' ? newValue : parseFloat(newValue)
-          if (isNaN(fValueRaw)) {
-            this.$emit('update:modelValue', null)
-          } else {
-            let min = R.isNil(this.min) ? Number.NEGATIVE_INFINITY : this.min
-            let max = R.isNil(this.max) ? Number.POSITIVE_INFINITY : this.max
-            let fValueClamped = R.clamp(min, max, fValueRaw)
-            let fValue = fValueClamped/100
-            
-            if (fValueClamped !== fValueRaw) {
-              this.$refs.pct.value = fValueClamped
-            }
-            this.$emit('update:modelValue', fValue)
-          }
-  
-        }
-      },
-      modelValueAsCurrency () {
-        const formatter = new Intl.NumberFormat(this.currencyLocale, {style:'currency', currency: this.currency})
-        return isNaN(this.modelValueAsNumber) ? '' : formatter.format(this.modelValueAsNumber )
-      },
-      
-      modelValueAsSwitch () {
-        let valueForCheckbox = this.modelValue
-        if (!this.isBooleanType) return !!this.modelValue
-        if (typeof valueForCheckbox === 'boolean') {
-          return valueForCheckbox
-        } else {
-          if (valueForCheckbox == this.switchOnValue) {
-            return true
-          } else if (valueForCheckbox == this.switchOffValue) {
-            return false
-          } else {
-            console.warn(`The value passed for the switch "${valueForCheckbox}" does not conform to either the specified "On" value of "${this.switchOnValue}" or the "Off" value "${this.switchOffValue}".\nThe off state will be assumed.\nRecommend that you check your data bindings!`)
-            return false
-          }
-        }
-      },
-  
-      // For when a Mutil select is specified
-      unusedOptions () {
-        let a = this.modelValue
-        console.warn('Not yet implemented a generic filter on items already used ...')
-        return a 
-        let aPropEqualTests = this.optionValuePropertyList.map(testPropName => R.eqProps(testPropName)) // The array is now filled with 2 parameter test functions
-        let fnOptionIsInModelValue = (item) => a.findIndex(itemInModel => R.eqProps( this.optionValueProperty,item, itemInModel)) //this.modelValue
-        return R.compose(
-  
-          R.filter(fnOptionIsInModelValue)
-        )(this.options)
-  
-      },
-      suppressMainLabel () {
-        let aTypeToSuppress = ['switch']
-        return aTypeToSuppress.includes(this.type)
-      },
-      haveSelectedItemToAddToGroup () {
-        return !R.isNil(this.selectedItemToAddGroup)
-      }
-    
-    },
-    methods: {
-      
-      decimalToPercent(value) {
-        const fnGetPlaces = (num) => {
-          let numAsText = num.toString()
-          let idxDecimalPoint = numAsText.indexOf('.')
-          return idxDecimalPoint > - 1 ? numAsText.length - idxDecimalPoint - 1 : 0
-        }
-        let srcPrecision = fnGetPlaces(value)
-        let valueAsPercent = value * 100
-        let trgPrecision = fnGetPlaces(valueAsPercent)
-        if (trgPrecision > srcPrecision + 2){
-          return valueAsPercent.toFixed(srcPrecision)
-        } else {
-          return valueAsPercent.toString()
-        }
-      },
-      parseCurrencyText (newValue) {
-        let fValue
-        if (typeof newValue === 'string') {
-          let hadSign = false
-          let hadDecimal = false
-          let reIsDecimal = /[0-9]/
-          let chars = newValue.split('')
-          let stripped = ''// newValue.replace(reAllowed,'')
-          chars.forEach(c =>{
-            if (reIsDecimal.test(c)){
-              stripped +=c
-            } else {
-              if (!hadSign && (c == '-' || c == '+')) {
-                stripped += c
-                hadSign = true
-              }
-              if (!hadDecimal && c == '.') {
-                stripped += c
-                hadDecimal = true
-              }
-            }
-          })
-          fValue = parseFloat(stripped)
-        } else {
-          fValue = parsFloat( newValue)
-        }
-        return fValue
-      },
-      updateCheckBoxes() {
-        // For a type checkboxes the value to emit is an array of values from those checkboxes that are TRUE
-        let aChecks = this.$refs.checkbox
-        let aSelectedChecks = aChecks.filter(checkbox => checkbox.checked)
-        let modelArray = aSelectedChecks.map(checkbox => checkbox.value)
-        this.$emit('update:modelValue', modelArray)
-  
-      },
-      onChange(ev) {
-        let value = ev.target.value
-        
-        if (this.isDateType) {
-          let isoDateTextForSharePoint = this.formatControlDateToSharePointIso(value)
-          value = isoDateTextForSharePoint
-        } else if (this.isNumberType) {
-          let valueAsNumber 
-          if (this.isCurrencyType) {
-            valueAsNumber = this.parseCurrencyText(value)
-          } else {
-            valueAsNumber = this.valueAsNumber
-          }
-          
-          let maxClamp = this.$attrs.max ? parseFloat(this.$attrs.max) : undefined
-          let minClamp = this.$attrs.max ? parseFloat(this.$attrs.min) : undefined
-          if (!isNaN(maxClamp) && valueAsNumber > maxClamp ) {
-            value =  maxClamp.toString() // Because this is how the updateModel handler would EXPECT to get the value, a string and not a number!
-            ev.target.value = value
-          }
-  
-          if (!isNaN(minClamp) && valueAsNumber < minClamp ) {
-            value =  minClamp.toString() // Because this is how the updateModel handler would EXPECT to get the value, a string and not a number!
-            ev.target.value = value
-          }
-          if (isNaN(valueAsNumber)) {
-            value = null // An Empty string value (or other non number) will cause an error in SharePoint attempting to convert data to "Edm.Double" so better pass NULL when duff value received!
-          } else {
-            value = valueAsNumber
-          }
-          // SELECT CONTROLS HAVE THEIR OWN UPDATE LOGIC!
-        // }  else if (this.type === 'select' && this.optionBindObject) {
-        //   // Get the underlying object 
-        //   // value = this.options[ev.target.selectedIndex - 1] // The -1 is because we have generates a (Choose ...) entry
-  
-        //   value = this.options[value]
-        } else if (this.isBooleanType) {
-          
-          value = !!ev.target.checked
-  
-          if (this.type === 'switch') {
-            if (value) {
-              value = this.switchOnValue
-            } else {
-              value = this.switchOffValue
-            }
-            this.$emit('checked',value)
-          }
-        }
-        
-        this.$emit('update:modelValue', value)
-        
-  
-        
-      },
-      getOptionIndex(opt) { 
-        // need to determine method to compare passed option to items in list of options
-        if (opt === null) return undefined;
-        
-        if (!this.options.map || this.options.length< 1)  return undefined;
+    required: {type: Boolean, required: false, default: false},
+    requiredIconName: {type: String, required: false, default: 'fa-asterisk'}, // Optional display icon override
+    modelValue: {required: true},
 
-        if (typeof opt === 'object'){
-          let testFunction
-          if (this.optionValueProperty) {
-            console.log('Here in the object specified value')
-            testFunction  = R.eqProps(this.optionValueProperty) // Current to a 2 parameter test function
-          } else if (this.optionTextProperty){
-            testFunction  = R.eqProps(this.optionTextProperty) // Current to a 2 parameter test function
-          } else if (this.optionFormatterFunction) {
-            testFunction = (a,b) => this.optionFormatterFunction(a) == this.optionFormatterFunction(b)
-          } else {
-            testFunction = R.equals
-          }      
-          return this.options.findIndex(itm => testFunction(itm,opt))
-        } else {
-          // because the "opt" is a simple value we need to reduce the options to a simple value too
-          let list = []
-          if (this.optionValueProperty) {
-            console.log('Here in the simple specified value')
-            list = this.options.map(itm => itm[this.optionValueProperty])
-            
-          } else if (this.optionTextProperty){
-            list = this.options.map(itm => itm[this.optionTextProperty])
-            
-          } else if (this.optionFormatterFunction) {
-            list = this.options.map(itm => this.optionFormatterFunction(itm))
-            
-          } else {
-            list = this.options.slice(0)
-          } 
-          //console.log(list)
-          return list.indexOf(opt)
+    options: {type: Array, required: false},
+    optionBackgroundColourProperty: {type: String, required: false}, // Property name of options item to hold a hex colour
+    optionForegroundColourProperty: {type: String, required: false}, // Property name of options item to hold a hex colour
+    optionValueProperty: {type: String, required: false, default: ''}, // Property name to bind value to
+    optionValuePropertyList: {type: Array, required: false, default: ['Id','ID','id', 'key','code', 'name']}, // Property names that *might* be an ID of an object (when not specified)
+    optionTextProperty: {type: String, required: false, default: ''}, // Property name to use for display text
+    optionFormatterFunction: {type: Function, required: false, default: null},
+    optionBindObject: {type: Boolean, required: false, default: false},
+    selectMulti: {type: Boolean, required: false, default: false},
+    
+    switchOnValue: {type: undefined, required: false, default: true},
+    switchOffValue: {type: undefined, required: false, default: false},
+    
+    missingColourClass: {type: String, required: false, default: 'text-danger'},
+    presentColourClass: {type: String, required: false, default: 'text-success'},
+    readonly: {type: Boolean, required: false, default: false},
+    suppressPrefixIcon: {type: Boolean, required: false, default: false},
+    
+    rows: {type: String, required: false, default: '3'},
+    min: {type: Number, required: false},
+    max: {type: Number, required: false},
+    step: {type: Number, required: false},
+   // fixedDecimals: {type: Number, required: false},
+    maxlength: {type: String, required: false, default: '255'}, // Particularly for single line input
+    currencyLocale: {type: String, required: false, default: 'en-GB'},
+    currency: {type: String, required: false, default: 'GBP'},
+
+    // For SharePoint lookup lists source
+    lookupListName: {type: String, required: false},
+    lookupListSite: {type: String, required: false},
+  },
+  emits: ['update:modelValue','checked'], // push out the standard edit event to the parent
+  expose:['requiredPass'],
+  data() {
+    return {
+      localId: null,
+      selectedItemToAddGroup: null,
+      boundSelectIndex: undefined,
+      pushedBoundSelectedValue: false,
+    }
+  },
+  watch:{
+    boundSelectIndex:{
+      handler(newIndex,oldIndex) {
+        if (newIndex === oldIndex){ 
+          console.log('unchanged boundSelectIndex triggered (watching abort!)')
+          return 
         }
-      }, // The objects are proxies and not going to be ===, but Ramda whereEq a good test
-      getBestOptionValue(opt) {
-        if (typeof opt === 'object') {
+        if (this.pushedBoundSelectedValue) return 
+        let newOption = this.options[newIndex]
+        let emitValue = this.optionBindObject ? newOption : this.getBestOptionValue(newOption)
+        this.$emit('update:modelValue', emitValue)
+      }
+    },
+    modelValue:{
+      immediate: true,
+      handler(newValue, oldValue) {
+        if (this.type === 'select') {
+          let idx = this.getOptionIndex(newValue)
+          this.pushedBoundSelectedValue = true
           
-         
-          if (this.optionValueProperty) {
-            return opt[this.optionValueProperty]
+          if (idx > - 1){
+            this.boundSelectIndex = idx
           } else {
-            return opt.code ?? opt.key ?? opt.Id ?? opt.id ?? opt.name ?? opt.toString()
+            this.boundSelectIndex = undefined
           }
-        } else {
-          return opt
-        }
-      },
-      getCheckedOptionValue (opt) {
-        
-        if (this.modelValue instanceof Array) {
-          let value = this.getBestOptionValue(opt)
-          return this.modelValue.includes(value)
-        } else {
-          return !!this.modelValue // cannot be checked list, but if a simple property just use its "truthiness"
-        }
-        
-      },
-      getBestOptionTextStandard(opt) {
-        if (typeof opt === 'object') {
-          if (this.optionTextProperty) {
-            return opt[this.optionTextProperty]
-          } else {
-            return opt.caption ?? opt.title ?? opt.Title ?? opt.name ?? opt.text ?? opt.display ?? opt.toString()
-          }        
-        } else {
-          return opt
-        }
-  
-      },
-      getBestOptionText(opt) {
-        if (typeof this.optionFormatterFunction === 'function') {
-          return this.optionFormatterFunction.call(this, opt)
-        } else {
-          if(typeof opt === 'number') {
-            return this.getBestOptionTextStandard(this.options[opt])
-          } else {
-            
-            return this.getBestOptionTextStandard(opt)
-          }
-        }          
-      },
-      localeDateFromIso(isoText) {
-        const reIsoDate = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2}).(\d{1,3}){0,1}/
-        if (R.isNil(isoText) || !reIsoDate.test(isoText)) return null;
-      
-        let parts = reIsoDate.exec(isoText)
-        .slice(1,8)
-        .map(p=>parseInt(p,10))
-        .filter(p=> p >=0)
-        parts[1]-- // decrement month to 0 to 11 basis
-        let timeCode = Date.UTC(...parts)
-        return new Date(timeCode)
-      },
-      formatDateInputControl(isoText) {
-        let dtm = this.localeDateFromIso(isoText)
-        let mmt= moment(dtm)
-        return  mmt.isValid() ? mmt.format('YYYY-MM-DD') : ''
-      },
-      formatDateTimeInputControl(isoText) {
-        let dtm = this.localeDateFromIso(isoText)
-        let mmt= moment(dtm)
-        return  mmt.isValid() ? mmt.format('YYYY-MM-DDT:HH:mm') : ''
-      },
-      formatControlDateToSharePointIso(controlText) {
-        //.toDate().toISOString().replace(/\.\d*/,''
-        if (controlText==='') return null;
-        const TICKS_PER_MIN = 1000 * 60
-        let dtm = new Date(controlText)
-        let offsetMinutes = dtm.getTimezoneOffset()
-        let timeCodeLocal = dtm.valueOf()
-        let timeCodeUtc = timeCodeLocal + (TICKS_PER_MIN * offsetMinutes)
-  
-        return (new Date(timeCodeUtc)).toISOString().replace(/\.\d{0,3}/,'')
-      },
-      getOptionStyle (option) {
-        let oStyle ={}
-        let backgroundProperty = this.optionBackgroundColourProperty
-        let colourProperty = this.optionForegroundColourProperty
-        if (backgroundProperty) {
-          if (option.hasOwnProperty(backgroundProperty)){
-            oStyle['background-color'] = option[backgroundProperty]
-          }
-        }
-        if (colourProperty) {
-          if (option.hasOwnProperty(colourProperty)){
-            oStyle['color'] = option[colourProperty]
-          }
-        }
-        return oStyle
-      },
-      removeFromModelArrayAtIndex(idx) {
-        console.assert(this.modelValue instanceof Array, 'An Array was expected ...')
-        
-        this.$emit('update:modelValue', R.remove(idx,1,this.modelValue))
-      },
-      appendToModelArray() {
-        console.assert(this.modelValue instanceof Array, 'An Array was expected ...')
-        let itemToAdd = this.options[this.selectedItemToAddGroup]
-        this.$emit('update:modelValue', R.append(itemToAdd,this.modelValue))
-      }
-  
-    },
-    mounted(){ 
-      this.localId = `${Math.random().toString().substring(2)}` 
-      if (this.type === 'checkboxes' && !(this.modelValue instanceof  Array)) {
-        this.$emit('update:modelValue', [])
-  
-      }
-      // const aLookupTypes = ['lookup','lookupMulti','user','userMulti']
-      // if (aLookupTypes.includes( this.type )) {
-      //   // Need to populate the 
-  
-      // }
-      if (this.type === 'select' ) {
-        let idx = this.getOptionIndex(this.modelValue)
-        if (idx >-1){
-          this.boundSelectIndex = idx
+          this.$nextTick(()=> this.pushedBoundSelectedValue = false)
         }
       }
-    },
-    template:`<div :class="$attrs.class" :style="$attrs.style">
-    <label v-if="!suppressMainLabel" :for="renderedControlId" :class="effectiveLabelClass">{{label}}</label>
-    <div class="input-group" v-if="useGroup">
-      <span v-if="!suppressPrefixIcon" :id="'typeIcon-' + localId" class="input-group-text"><i :class="typeIconClass"></i></span>
-      <textarea v-if="type === 'textarea'"
-        :readonly="readonly"
-        :value="modelValue"
-        class="form-control"
-        @input="onChange($event)"
-        :id="renderedControlId"
-        :rows="rows"
-        :placeholder="placeholder"
-        >
-      </textarea>
-      <select v-else-if="type === 'select'"
-        class="form-select" 
-        :readonly="readonly"
-        v-model="boundSelectIndex"
-        :id="renderedControlId"
-        :style="getActiveOptionStyle"
-      >
-        <option disabled >(Choose ...)</option>
-        <option v-for="(opt,idx) in options" :key="'opt-' + localId + '-' + idx" :value="idx" :style="getOptionStyle(opt)">
-        {{getBestOptionText(opt)}}
-        </option>
-      </select>
+    }, 
+    options: {
+      flush:'post',
+      handler(newSet, oldSet){
+        // react to changes in options that may affect the selected index
+        let idxNow = this.boundSelectIndex
+        let idxAfter = this.getOptionIndex(this.modelValue)
+        if (idxAfter !== idxNow && typeof idxAfter === 'number' && idxAfter> -1){
+          this.pushedBoundSelectedValue = true
+          this.boundSelectIndex = idxAfter
+          this.$nextTick(()=> this.pushedBoundSelectedValue = false)
+        }
+      }
+    }
+  },
   
-  
-      <input v-else-if="type === 'date'"
-        :readonly="readonly"
-        :type="type"
-        :value="formatDateInputControl(modelValue)"
-        class="form-control"
-        @change="onChange($event)"
-        :id="renderedControlId"
-        
-      >
-  
-      <input v-else-if="type === 'datetime-local'"
-        :type="type"
-        :readonly="readonly"
-        :value="formatDateTimeInputControl(modelValue)"
-        class="form-control"
-        @change="onChange($event)"
-        :id="renderedControlId"
-        
-      >
-  
-      <input v-else-if="type === 'text'"
-        :type="type"
-        :readonly="readonly"
-        class="form-control"
-        :value="modelValue"
-        @input="onChange($event)"
-        :maxlength="maxlength"
-        :id="renderedControlId"
-        :placeholder="placeholder"
-        :list="renderedControlId + '-datalist'"
-      >
-  
-      <input v-else-if="type === 'number'"
-        type="number"
-        :readonly="readonly"
-        class="form-control"
-        :id="renderedControlId"
-        :value="modelValueAsNumber"
-        @input="modelValueAsNumber = $event.target.value"
-        :min="min"
-        :max="max"
-        :step="step"
-        ref="num"
-      >
-      <input v-else-if="type === 'percent'"
-        type="number"
-        :readonly="readonly"
-        class="form-control"
-        :id="renderedControlId"
-        v-model.number="modelValueAsPercentage"
-        ref="pct"
-      >
-  
-      <input v-else-if="type === 'currency'"
-        type="text"
-        :readonly="readonly"
-        class="form-control"
-        @change="onChange($event)"
-        :value="modelValueAsCurrency"
-        :id="renderedControlId"
-      >
-  
-      <input v-else 
-        :type="type" 
-        :readonly="readonly"
-        class="form-control"
-        :value="modelValue"
-        @input="onChange($event)"
-        :id="renderedControlId"
-        
-      >
-      <span v-if="required" class="input-group-text">
-        <span v-if="haveValue"><i :class="validIconClass"></i></span>
-        <span  v-if="!haveValue"><i :class="invalidIconClass"></i></span>
-      </span>
-      <slot name="groupsuffix"></slot>
-  
-      <datalist :id="renderedControlId + '-datalist'" v-if="options?.length > 0 && type==='text'">
-        <option v-for="(opt,idx) in options" :key="'opt-' + localId + '-' + idx" :value="getBestOptionValue(opt)">{{getBestOptionText(opt)}}</option>
-      </datalist>
+  computed:{
     
-    </div>
+    haveValue() {
+      let v = this.modelValue
+      if (typeof v === 'string' &&  v === '') return false;
+      return !(R.isNil(v))
+    },
+    typeIconClass() {
+      let aClass= ['fas']
+      let iconName = ''
+      switch(this.type) {
+        case 'text':
+          iconName = 'fa-font'
+          break;
+        case 'textarea':
+          iconName = 'fa-pen-fancy'
+          break;
+        case 'number':
+          iconName = 'fa-hashtag'
+          break;
+        case 'percent':
+          iconName = 'fa-percent'
+          break;
+        case 'date':
+          iconName = 'fa-calendar'
+          break;
+        case 'color':
+          iconName = 'fa-palette'
+          break;
+        case 'datetime-local':
+          iconName = 'fa-clock'
+          break;
+        case 'currency':
+          iconName = 'fa-pound-sign'
+          break;
+        case 'select':
+          iconName = 'fa-list-ul'
+          break;
+        case 'checkboxes':
+          iconName = 'fa-check-double'
+          break
+        case 'radio': 
+          iconName = 'fa-check-circle'
+          break
+        case 'switch': 
+          // Does not use an icon because display layout differs to standard types
+          break
+        default:
+          break;
+      }
+      aClass.push(iconName)
+      return aClass
+    },
+    invalidIconClass () {
+      return  [
+        'fas',
+        this.requiredIconName,
+        this.missingColourClass
+      ]
+    },
+    validIconClass () {
+      return  [
+        'fas',
+        this.requiredIconName,
+        this.presentColourClass
+      ]
+    },
+    effectiveLabelClass() {
+      let textClasses = this.labelClass
+      const reTokens = /([a-z0-9-_]+ ?)/gi
+
+      let out = ['form-label']
+      let mCol
+      while(mCol = reTokens.exec(textClasses)) {
+        out.push (mCol[1])
+      }
+      return out
+    },
+    
+    requiredPass () {
+      return this.required === false || this.haveValue
+    },
+    isDateType() {
+      return this.type === 'date' || this.type === 'datetime-local'
+    },
+    isBooleanType () {
+      let aTypes=['switch']
+      return aTypes.includes(this.type)
+    },
+    isNumberType() {
+      const aNumberTypes = ['number','percent','currency']
+      return aNumberTypes.includes(this.type)
+    },
+    isCurrencyType() {
+      const aNumberTypes = ['currency']
+      return aNumberTypes.includes(this.type)
+    },
+    renderedControlId () {
+      return `labelledControl-${this.localId}`
+    },
+    useGroup() {
+      let aNonGroupLayoutTypes = ['radio','checkboxes','switch']
+      let generateGroup = !aNonGroupLayoutTypes.includes(this.type)
+      if (this.type ==='select' && this.selectMulti) generateGroup = false //will need alternate UI of a box containing "badges" of items
+      return generateGroup
+      
+    },
+    getActiveOptionStyle () {
+      let oNoStyle ={}
+      if (this.options?.length > 0 &&   this.optionBackgroundColourProperty || this.optionForegroundColourProperty) {
+        let currentValue = this.modelValue
+        let aOpts = this.options.filter(opt => this.getBestOptionValue(opt) === currentValue)
+        if (aOpts.length) {
+          return this.getOptionStyle(aOpts[0])
+        }
+      }
+      return oNoStyle
+    },
+    modelValueAsNumber: {
+      get(){
+        if ( isNaN(this.modelValue)) {
+          return undefined
+        } else {
+         let value = parseFloat(this.modelValue)
+         return value //R.isNil(this.fixedDecimals) ? value :  value.toFixed(this.fixedDecimals)
+        }
+      },
+      set(newValue) {
+        let fValueRaw = null
+        if (typeof newValue === 'string') {
+          let reNonNumber = /[^\d\.\+\-]/g
+          let strippedValue = ('' + newValue).replace(reNonNumber,'')
+          fValueRaw = parseFloat(strippedValue)
+        } else {
+          fValueRaw = typeof newValue === 'number' ? newValue : parseFloat(newValue)
+        }
+        
+        if (isNaN(fValueRaw)){
+          this.$emit('update:modelValue', null)
+          this.$refs.num.value = ''
+          
+        } else {
+          let min = R.isNil(this.min) ? Number.NEGATIVE_INFINITY : this.min
+          let max = R.isNil(this.max) ? Number.POSITIVE_INFINITY : this.max
+          let fValueClamped = R.clamp(min, max, fValueRaw)
+        
+          
+          if (this.$refs.num.value != fValueClamped ) {
+            this.$refs.num.value = fValueClamped
+          }
+          this.$emit('update:modelValue', fValueClamped)
+        }
+
+      }
+    },// () {return  parseFloat(this.modelValue)},
+    /**
+     * @description display the model value multiplied by 100 to express a decimal as a percentage
+     * This works un conjunction with the update logic that divides by 100
+     */
+    modelValueAsPercentage: {
+      get(){
+        let fValueRaw = this.modelValueAsNumber
+        if (isNaN(fValueRaw)) return  ''
+        //let min = R.isNil(this.min) ? Number.NEGATIVE_INFINITY : this.min
+        //let max = R.isNil(this.max) ? Number.POSITIVE_INFINITY : this.max
+        let fValueAsPct = this.decimalToPercent(fValueRaw)
+        return fValueAsPct
+      },
+      set(newValue) {
+        let fValueRaw = typeof newValue === 'number' ? newValue : parseFloat(newValue)
+        if (isNaN(fValueRaw)) {
+          this.$emit('update:modelValue', null)
+        } else {
+          let min = R.isNil(this.min) ? Number.NEGATIVE_INFINITY : this.min
+          let max = R.isNil(this.max) ? Number.POSITIVE_INFINITY : this.max
+          let fValueClamped = R.clamp(min, max, fValueRaw)
+          let fValue = fValueClamped/100
+          
+          if (fValueClamped !== fValueRaw) {
+            this.$refs.pct.value = fValueClamped
+          }
+          this.$emit('update:modelValue', fValue)
+        }
+
+      }
+    },
+    modelValueAsCurrency () {
+      const formatter = new Intl.NumberFormat(this.currencyLocale, {style:'currency', currency: this.currency})
+      return isNaN(this.modelValueAsNumber) ? '' : formatter.format(this.modelValueAsNumber )
+    },
+    
+    modelValueAsSwitch () {
+      let valueForCheckbox = this.modelValue
+      if (!this.isBooleanType) return !!this.modelValue
+      if (typeof valueForCheckbox === 'boolean') {
+        return valueForCheckbox
+      } else {
+        if (valueForCheckbox == this.switchOnValue) {
+          return true
+        } else if (valueForCheckbox == this.switchOffValue) {
+          return false
+        } else {
+          console.warn(`The value passed for the switch "${valueForCheckbox}" does not conform to either the specified "On" value of "${this.switchOnValue}" or the "Off" value "${this.switchOffValue}".\nThe off state will be assumed.\nRecommend that you check your data bindings!`)
+          return false
+        }
+      }
+    },
+
+    // For when a Mutil select is specified
+    unusedOptions () {
+      let a = this.modelValue
+      console.warn('Not yet implemented a generic filter on items already used ...')
+      return a 
+      let aPropEqualTests = this.optionValuePropertyList.map(testPropName => R.eqProps(testPropName)) // The array is now filled with 2 parameter test functions
+      let fnOptionIsInModelValue = (item) => a.findIndex(itemInModel => R.eqProps( this.optionValueProperty,item, itemInModel)) //this.modelValue
+      return R.compose(
+
+        R.filter(fnOptionIsInModelValue)
+      )(this.options)
+
+    },
+    suppressMainLabel () {
+      let aTypeToSuppress = ['switch']
+      return aTypeToSuppress.includes(this.type)
+    },
+    haveSelectedItemToAddToGroup () {
+      return !R.isNil(this.selectedItemToAddGroup)
+    }
   
+  },
+  methods: {
+    
+    decimalToPercent(value) {
+      const fnGetPlaces = (num) => {
+        let numAsText = num.toString()
+        let idxDecimalPoint = numAsText.indexOf('.')
+        return idxDecimalPoint > - 1 ? numAsText.length - idxDecimalPoint - 1 : 0
+      }
+      let srcPrecision = fnGetPlaces(value)
+      let valueAsPercent = value * 100
+      let trgPrecision = fnGetPlaces(valueAsPercent)
+      if (trgPrecision > srcPrecision + 2){
+        return valueAsPercent.toFixed(srcPrecision)
+      } else {
+        return valueAsPercent.toString()
+      }
+    },
+    parseCurrencyText (newValue) {
+      let fValue
+      if (typeof newValue === 'string') {
+        let hadSign = false
+        let hadDecimal = false
+        let reIsDecimal = /[0-9]/
+        let chars = newValue.split('')
+        let stripped = ''// newValue.replace(reAllowed,'')
+        chars.forEach(c =>{
+          if (reIsDecimal.test(c)){
+            stripped +=c
+          } else {
+            if (!hadSign && (c == '-' || c == '+')) {
+              stripped += c
+              hadSign = true
+            }
+            if (!hadDecimal && c == '.') {
+              stripped += c
+              hadDecimal = true
+            }
+          }
+        })
+        fValue = parseFloat(stripped)
+      } else {
+        fValue = parsFloat( newValue)
+      }
+      return fValue
+    },
+    updateCheckBoxes() {
+      // For a type checkboxes the value to emit is an array of values from those checkboxes that are TRUE
+      let aChecks = this.$refs.checkbox
+      let aSelectedChecks = aChecks.filter(checkbox => checkbox.checked)
+      let modelArray = aSelectedChecks.map(checkbox => checkbox.value)
+      this.$emit('update:modelValue', modelArray)
+
+    },
+    onChange(ev) {
+      let value = ev.target.value
+      
+      if (this.isDateType) {
+        let isoDateTextForSharePoint = this.formatControlDateToSharePointIso(value)
+        value = isoDateTextForSharePoint
+      } else if (this.isNumberType) {
+        let valueAsNumber 
+        if (this.isCurrencyType) {
+          valueAsNumber = this.parseCurrencyText(value)
+        } else {
+          valueAsNumber = this.valueAsNumber
+        }
+        
+        let maxClamp = this.$attrs.max ? parseFloat(this.$attrs.max) : undefined
+        let minClamp = this.$attrs.max ? parseFloat(this.$attrs.min) : undefined
+        if (!isNaN(maxClamp) && valueAsNumber > maxClamp ) {
+          value =  maxClamp.toString() // Because this is how the updateModel handler would EXPECT to get the value, a string and not a number!
+          ev.target.value = value
+        }
+
+        if (!isNaN(minClamp) && valueAsNumber < minClamp ) {
+          value =  minClamp.toString() // Because this is how the updateModel handler would EXPECT to get the value, a string and not a number!
+          ev.target.value = value
+        }
+        if (isNaN(valueAsNumber)) {
+          value = null // An Empty string value (or other non number) will cause an error in SharePoint attempting to convert data to "Edm.Double" so better pass NULL when duff value received!
+        } else {
+          value = valueAsNumber
+        }
+        // SELECT CONTROLS HAVE THEIR OWN UPDATE LOGIC!
+      // }  else if (this.type === 'select' && this.optionBindObject) {
+      //   // Get the underlying object 
+      //   // value = this.options[ev.target.selectedIndex - 1] // The -1 is because we have generates a (Choose ...) entry
+
+      //   value = this.options[value]
+      } else if (this.isBooleanType) {
+        
+        value = !!ev.target.checked
+
+        if (this.type === 'switch') {
+          if (value) {
+            value = this.switchOnValue
+          } else {
+            value = this.switchOffValue
+          }
+          this.$emit('checked',value)
+        }
+      }
+      
+      this.$emit('update:modelValue', value)
+      
+
+      
+    },
+    getOptionIndex(opt) { 
+      // need to determine method to compare passed option to items in list of options
+      
+      if (typeof opt === 'object'){
+        let testFunction
+        if (this.optionValueProperty) {
+          console.log('Here in the object specified value')
+          testFunction  = R.eqProps(this.optionValueProperty) // Current to a 2 parameter test function
+        } else if (this.optionTextProperty){
+          testFunction  = R.eqProps(this.optionTextProperty) // Current to a 2 parameter test function
+        } else if (this.optionFormatterFunction) {
+          testFunction = (a,b) => this.optionFormatterFunction(a) == this.optionFormatterFunction(b)
+        } else {
+          testFunction = R.equals
+        }      
+        return this.options.findIndex(itm => testFunction(itm,opt))
+      } else {
+        // because the "opt" is a simple value we need to reduce the options to a simple value too
+        let list = []
+        if (this.optionValueProperty) {
+          console.log('Here in the simple specified value')
+          list = this.options.map(itm => itm[this.optionValueProperty])
+          
+        } else if (this.optionTextProperty){
+          list = this.options.map(itm => itm[this.optionTextProperty])
+          
+        } else if (this.optionFormatterFunction) {
+          list = this.options.map(itm => this.optionFormatterFunction(itm))
+          
+        } else {
+          list = this.options.slice(0)
+        } 
+        console.log(list)
+        return list.indexOf(opt)
+      }
+    }, // The objects are proxies and not going to be ===, but Ramda whereEq a good test
+    getBestOptionValue(opt) {
+      if (typeof opt === 'object') {
+        
+       
+        if (this.optionValueProperty) {
+          return opt[this.optionValueProperty]
+        } else {
+          return opt.code ?? opt.key ?? opt.Id ?? opt.id ?? opt.name ?? opt.toString()
+        }
+      } else {
+        return opt
+      }
+    },
+    getCheckedOptionValue (opt) {
+      
+      if (this.modelValue instanceof Array) {
+        let value = this.getBestOptionValue(opt)
+        return this.modelValue.includes(value)
+      } else {
+        return !!this.modelValue // cannot be checked list, but if a simple property just use its "truthiness"
+      }
+      
+    },
+    getBestOptionTextStandard(opt) {
+      if (typeof opt === 'object') {
+        if (this.optionTextProperty) {
+          return opt[this.optionTextProperty]
+        } else {
+          return opt.caption ?? opt.title ?? opt.Title ?? opt.name ?? opt.text ?? opt.display ?? opt.toString()
+        }        
+      } else {
+        return opt
+      }
+
+    },
+    getBestOptionText(opt) {
+      if (typeof this.optionFormatterFunction === 'function') {
+        return this.optionFormatterFunction.call(this, opt)
+      } else {
+        if(typeof opt === 'number') {
+          return this.getBestOptionTextStandard(this.options[opt])
+        } else {
+          
+          return this.getBestOptionTextStandard(opt)
+        }
+      }          
+    },
+    localeDateFromIso(isoText) {
+      const reIsoDate = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2}).(\d{1,3}){0,1}/
+      if (R.isNil(isoText) || !reIsoDate.test(isoText)) return null;
+    
+      let parts = reIsoDate.exec(isoText)
+      .slice(1,8)
+      .map(p=>parseInt(p,10))
+      .filter(p=> p >=0)
+      parts[1]-- // decrement month to 0 to 11 basis
+      let timeCode = Date.UTC(...parts)
+      return new Date(timeCode)
+    },
+    formatDateInputControl(isoText) {
+      let dtm = this.localeDateFromIso(isoText)
+      let mmt= moment(dtm)
+      return  mmt.isValid() ? mmt.format('YYYY-MM-DD') : ''
+    },
+    formatDateTimeInputControl(isoText) {
+      let dtm = this.localeDateFromIso(isoText)
+      let mmt= moment(dtm)
+      return  mmt.isValid() ? mmt.format('YYYY-MM-DDT:HH:mm') : ''
+    },
+    formatControlDateToSharePointIso(controlText) {
+      //.toDate().toISOString().replace(/\.\d*/,''
+      const TICKS_PER_MIN = 1000 * 60
+      let dtm = new Date(controlText)
+      let offsetMinutes = dtm.getTimezoneOffset()
+      let timeCodeLocal = dtm.valueOf()
+      let timeCodeUtc = timeCodeLocal + (TICKS_PER_MIN * offsetMinutes)
+
+      return (new Date(timeCodeUtc)).toISOString().replace(/\.\d{0,3}/,'')
+    },
+    getOptionStyle (option) {
+      let oStyle ={}
+      let backgroundProperty = this.optionBackgroundColourProperty
+      let colourProperty = this.optionForegroundColourProperty
+      if (backgroundProperty) {
+        if (option.hasOwnProperty(backgroundProperty)){
+          oStyle['background-color'] = option[backgroundProperty]
+        }
+      }
+      if (colourProperty) {
+        if (option.hasOwnProperty(colourProperty)){
+          oStyle['color'] = option[colourProperty]
+        }
+      }
+      return oStyle
+    },
+    removeFromModelArrayAtIndex(idx) {
+      console.assert(this.modelValue instanceof Array, 'An Array was expected ...')
+      
+      this.$emit('update:modelValue', R.remove(idx,1,this.modelValue))
+    },
+    appendToModelArray() {
+      console.assert(this.modelValue instanceof Array, 'An Array was expected ...')
+      let itemToAdd = this.options[this.selectedItemToAddGroup]
+      this.$emit('update:modelValue', R.append(itemToAdd,this.modelValue))
+    }
+
+  },
+  mounted(){ 
+    this.localId = `${Math.random().toString().substring(2)}` 
+    if (this.type === 'checkboxes' && !(this.modelValue instanceof  Array)) {
+      this.$emit('update:modelValue', [])
+
+    }
+    // const aLookupTypes = ['lookup','lookupMulti','user','userMulti']
+    // if (aLookupTypes.includes( this.type )) {
+    //   // Need to populate the 
+
+    // }
+    if (this.type === 'select' ) {
+      let idx = this.getOptionIndex(this.modelValue)
+      if (idx >-1){
+        this.boundSelectIndex = idx
+      }
+    }
+  },
+  template:`<div :class="$attrs.class" :style="$attrs.style">
+  <label v-if="!suppressMainLabel" :for="renderedControlId" :class="effectiveLabelClass">{{label}}</label>
+  <div class="input-group" v-if="useGroup">
+    <span v-if="!suppressPrefixIcon" :id="'typeIcon-' + localId" class="input-group-text"><i :class="typeIconClass"></i></span>
+    <textarea v-if="type === 'textarea'"
+      :readonly="readonly"
+      :value="modelValue"
+      class="form-control"
+      @input="onChange($event)"
+      :id="renderedControlId"
+      :rows="rows"
+      :placeholder="placeholder"
+      >
+    </textarea>
+    <select v-else-if="type === 'select'"
+      class="form-select" 
+      :readonly="readonly"
+      v-model="boundSelectIndex"
+      :id="renderedControlId"
+      :style="getActiveOptionStyle"
+    >
+      <option disabled >(Choose ...)</option>
+      <option v-for="(opt,idx) in options" :key="'opt-' + localId + '-' + idx" :value="idx" :style="getOptionStyle(opt)">
+      {{getBestOptionText(opt)}}
+      </option>
+    </select>
+
+
+    <input v-else-if="type === 'date'"
+      :readonly="readonly"
+      :type="type"
+      :value="formatDateInputControl(modelValue)"
+      class="form-control"
+      @change="onChange($event)"
+      :id="renderedControlId"
+      
+    >
+
+    <input v-else-if="type === 'datetime-local'"
+      :type="type"
+      :readonly="readonly"
+      :value="formatDateTimeInputControl(modelValue)"
+      class="form-control"
+      @change="onChange($event)"
+      :id="renderedControlId"
+      
+    >
+
+    <input v-else-if="type === 'text'"
+      :type="type"
+      :readonly="readonly"
+      class="form-control"
+      :value="modelValue"
+      @input="onChange($event)"
+      :maxlength="maxlength"
+      :id="renderedControlId"
+      :placeholder="placeholder"
+      :list="renderedControlId + '-datalist'"
+    >
+
+    <input v-else-if="type === 'number'"
+      type="number"
+      :readonly="readonly"
+      class="form-control"
+      :id="renderedControlId"
+      :value="modelValueAsNumber"
+      @input="modelValueAsNumber = $event.target.value"
+      :min="min"
+      :max="max"
+      :step="step"
+      ref="num"
+    >
+    <input v-else-if="type === 'percent'"
+      type="number"
+      :readonly="readonly"
+      class="form-control"
+      :id="renderedControlId"
+      v-model.number="modelValueAsPercentage"
+      ref="pct"
+    >
+
+    <input v-else-if="type === 'currency'"
+      type="text"
+      :readonly="readonly"
+      class="form-control"
+      @change="onChange($event)"
+      :value="modelValueAsCurrency"
+      :id="renderedControlId"
+    >
+
+    <input v-else 
+      :type="type" 
+      :readonly="readonly"
+      class="form-control"
+      :value="modelValue"
+      @input="onChange($event)"
+      :id="renderedControlId"
+      
+    >
+    <span v-if="required" class="input-group-text">
+      <span v-if="haveValue"><i :class="validIconClass"></i></span>
+      <span  v-if="!haveValue"><i :class="invalidIconClass"></i></span>
+    </span>
+    <slot name="groupsuffix"></slot>
+
+    <datalist :id="renderedControlId + '-datalist'" v-if="options?.length > 0 && type==='text'">
+      <option v-for="(opt,idx) in options" :key="'opt-' + localId + '-' + idx" :value="getBestOptionValue(opt)">{{getBestOptionText(opt)}}</option>
+    </datalist>
   
-    <div v-if="!useGroup">
-  
-      <div v-if="type === 'checkboxes'" class="form-check form-check-inline" :id="renderedControlId">
-        <template v-for="(check, idx) in options"  :key="renderedControlId + '-' + idx" >
-        <div  class="form-check form-check-inline">
-          <input type="checkbox" ref="checkbox"
-            class="form-check-input"  :id="renderedControlId + '-' + idx" 
-            :value="getBestOptionValue(check)" 
-            :checked="getCheckedOptionValue(check)"
-            @change="updateCheckBoxes"
-            >
-          <label class="form-check-label" :for="renderedControlId + '-' + idx">{{getBestOptionText(check)}}</label>
-        </div>
-        </template>
-      </div>
-  
-      <div v-else-if="type === 'radio'"  :id="renderedControlId">
-  
-        <template v-for="(check, idx) in options"  :key="renderedControlId + '-' + idx" >
-        <div  class="form-check form-check-inline">
-          <input class="form-check-input" type="radio" :id="renderedControlId + '-' + idx" :value="getBestOptionValue(check)" :checked="getCheckedOptionValue(check)">
-          <label class="form-check-label" :for="renderedControlId + '-' + idx">{{getBestOptionText(check)}}</label>
-        </div>
-        </template>    
-      </div>
-  
-      <div v-else-if="type === 'select'" :class="$attrs.class">
-        <div class="w-100 border border-1 p-1">
-          <TransitionGroup name="simple-fade">
-          <span v-for="(item,idx) in unusedOptions" :key="renderedControlId + '-' + idx + item.Id || '-'"
-            class="d-inline-block badge  me-2 mb-1 text-bg-info border border-primary"
-          ><small>
-            {{getBestOptionText(item)}}&nbsp;<button class="btn nav-link text-dark" role="button" @click="removeFromModelArrayAtIndex(idx)"><i class="fas fa-trash"></i></button>
-          </small></span></TransitionGroup>
-        </div>
-        <div class="mt-1 input-group">
-          <select
-            v-model="selectedItemToAddGroup"
-            class="form-select  form-select-sm" 
-            :id="renderedControlId"
+  </div>
+
+
+  <div v-if="!useGroup">
+
+    <div v-if="type === 'checkboxes'" class="form-check form-check-inline" :id="renderedControlId">
+      <template v-for="(check, idx) in options"  :key="renderedControlId + '-' + idx" >
+      <div  class="form-check form-check-inline">
+        <input type="checkbox" ref="checkbox"
+          class="form-check-input"  :id="renderedControlId + '-' + idx" 
+          :value="getBestOptionValue(check)" 
+          :checked="getCheckedOptionValue(check)"
+          @change="updateCheckBoxes"
           >
-            
-            <option v-for="(opt,idx) in options" :key="'opt-' + localId + '-' + idx" :value="idx" :style="getOptionStyle(opt)">
-            {{getBestOptionText(opt)}}
-            </option>
-          </select>
-          <button @click="appendToModelArray" :disabled="!haveSelectedItemToAddToGroup" class="btn btn-small btn-primary">+</button>
-        </div>
+        <label class="form-check-label" :for="renderedControlId + '-' + idx">{{getBestOptionText(check)}}</label>
       </div>
-      
-      <div v-else-if="type === 'switch'" class="form-check form-switch">
-        <input class="form-check-input" type="checkbox" role="switch"
-          :id="renderedControlId" :checked="modelValueAsSwitch" @change="onChange($event)"
+      </template>
+    </div>
+
+    <div v-else-if="type === 'radio'"  :id="renderedControlId">
+
+      <template v-for="(check, idx) in options"  :key="renderedControlId + '-' + idx" >
+      <div  class="form-check form-check-inline">
+        <input class="form-check-input" type="radio" :id="renderedControlId + '-' + idx" :value="getBestOptionValue(check)" :checked="getCheckedOptionValue(check)">
+        <label class="form-check-label" :for="renderedControlId + '-' + idx">{{getBestOptionText(check)}}</label>
+      </div>
+      </template>    
+    </div>
+
+    <div v-else-if="type === 'select'" :class="$attrs.class">
+      <div class="w-100 border border-1 p-1">
+        <TransitionGroup name="simple-fade">
+        <span v-for="(item,idx) in unusedOptions" :key="renderedControlId + '-' + idx + item.Id || '-'"
+          class="d-inline-block badge  me-2 mb-1 text-bg-info border border-primary"
+        ><small>
+          {{getBestOptionText(item)}}&nbsp;<button class="btn nav-link text-dark" role="button" @click="removeFromModelArrayAtIndex(idx)"><i class="fas fa-trash"></i></button>
+        </small></span></TransitionGroup>
+      </div>
+      <div class="mt-1 input-group">
+        <select
+          v-model="selectedItemToAddGroup"
+          class="form-select  form-select-sm" 
+          :id="renderedControlId"
         >
-        <label class="form-check-label" :for="renderedControlId">{{label}}</label>      
+          
+          <option v-for="(opt,idx) in options" :key="'opt-' + localId + '-' + idx" :value="idx" :style="getOptionStyle(opt)">
+          {{getBestOptionText(opt)}}
+          </option>
+        </select>
+        <button @click="appendToModelArray" :disabled="!haveSelectedItemToAddToGroup" class="btn btn-small btn-primary">+</button>
       </div>
-  
-  
-  
     </div>
     
-    <slot></slot>
-  </div>`
-   }
+    <div v-else-if="type === 'switch'" class="form-check form-switch">
+      <input class="form-check-input" type="checkbox" role="switch"
+        :id="renderedControlId" :checked="modelValueAsSwitch" @change="onChange($event)"
+      >
+      <label class="form-check-label" :for="renderedControlId">{{label}}</label>      
+    </div>
+
+
+
+  </div>
+  
+  <slot></slot>
+</div>`
+ }
 
 }
 
