@@ -23,7 +23,7 @@
  * WARNING: 
  */
 // ~~CONFIGURE HERE~~ set the global name required
-export default  (function (namespaceObject) {
+globalThis.maceSPUserUtility = (function (namespaceObject) {
   'use strict'
   console.log('Loading Module maceSPUserUtility.js') // This is useful to trace any issues with load sequence
   const SemVer='2.1.2'
