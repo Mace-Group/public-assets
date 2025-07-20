@@ -22,6 +22,9 @@
  * 
  * WARNING: 
  */
+
+var SITE_BASE=''
+
 // ~~CONFIGURE HERE~~ set the global name required
 globalThis.maceSPUserUtility = (function (namespaceObject) {
   'use strict'
@@ -35,7 +38,7 @@ globalThis.maceSPUserUtility = (function (namespaceObject) {
    * useful and consistent names for the consumers of THIS library.
    */
   
-  let SITE_BASE // NOTE: Not a const, will be dynamically determined and can be "set"
+  
   
   if (document?.currentScript) {
     let src = document.currentScript.src
