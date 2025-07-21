@@ -37,6 +37,7 @@
 
 
 // ~~CONFIGURE HERE~~ set the global name required
+var SITE_BASE = ''
 globalThis.maceSPListUtility = (function (namespaceObject) {
   'use strict'
   console.log('Loading Module maceSPListUtility.js') // This is useful to trace any issues with load sequence
@@ -47,7 +48,7 @@ globalThis.maceSPListUtility = (function (namespaceObject) {
    * Consequently this library has a translation capability used to map between the obscure internals return from the REST API to
    * useful and consistent names for the consumers of THIS library.
    */
-  let SITE_BASE // = 'https://mace365.sharepoint.com/sites/MoJControlCentre' // ~~CONFIGURE HERE~~
+ // let SITE_BASE // = 'https://mace365.sharepoint.com/sites/MoJControlCentre' // ~~CONFIGURE HERE~~
   if (document?.currentScript) {
     let src = document.currentScript.src
     let reFindSite = /(.+)\/siteAssets\/(.*)/i
@@ -281,6 +282,8 @@ function autoPrefixSiteUrlWithBase (siteBase) {
       out.Editor = Object.assign({}, itm.Editor)
       out.editedOn = new Date(R.pathOr(null,['Modified'], itm))
       out.editorName = R.pathOr('',['Editor','Title'], itm)
+      out.createdOn = new Date(R.pathOr(null,['Created'], itm))
+      out.createdBy = R.pathOr('',['Author','Title'], itm)
       return out
     }
     // Convert either an Array or a single object
@@ -519,7 +522,7 @@ function autoPrefixSiteUrlWithBase (siteBase) {
     } else {
       // any lookups, User or UserMulti fields?
       let genericExpandClause = '&$expand=Editor'
-      let genericSelect = '&$select=*,Editor/Title,Editor/EMail'
+      let genericSelect = '&$select=*,Editor/Title,Editor/EMail,Author/Title,Author/EMail'
       let aLookupsSingle = fnGetInternalNamesByTypeFromMap ('Lookup', mapFields)
       let aLookupsMulti = fnGetInternalNamesByTypeFromMap ('LookupMulti', mapFields)
       let aLookups = aLookupsSingle.concat(aLookupsMulti)
