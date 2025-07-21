@@ -41,14 +41,14 @@ var SITE_BASE = ''
 globalThis.maceSPListUtility = (function (namespaceObject) {
   'use strict'
   console.log('Loading Module maceSPListUtility.js') // This is useful to trace any issues with load sequence
-  const SemVer='2.1.1'
+  const SemVer='2.1.2'
   /**
    * The SharePoint lists managed by this module were mainly created by the SharePoint List from Spreadsheet facility
    * The result is that many of the internal field names are unsuited to logical coding conventions (i.e field_1, field_2 etc)
    * Consequently this library has a translation capability used to map between the obscure internals return from the REST API to
    * useful and consistent names for the consumers of THIS library.
    */
- // let SITE_BASE // = 'https://mace365.sharepoint.com/sites/MoJControlCentre' // ~~CONFIGURE HERE~~
+ 
   if (document?.currentScript) {
     let src = document.currentScript.src
     let reFindSite = /(.+)\/siteAssets\/(.*)/i
