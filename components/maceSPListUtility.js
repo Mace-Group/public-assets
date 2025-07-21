@@ -506,6 +506,8 @@ function autoPrefixSiteUrlWithBase (siteBase) {
       urlQuery += '&$select=' + selectClause
       if (selectClause.indexOf('Editor/Title') === -1) urlQuery += ',Editor/Title'; // Whether asked for or not we will return Editor Name
       if (selectClause.indexOf('Editor/EMail') === -1) urlQuery += ',Editor/EMail'; //  ditto for email
+      if (selectClause.indexOf('Author/Title') === -1) urlQuery += ',Author/Title'; // Whether asked for or not we will return Author Name
+      if (selectClause.indexOf('Author/EMail') === -1) urlQuery += ',Author/EMail'; //  ditto for email
       const expandParam = '&$expand='
       let expandClause = R.compose( // READ BOTTOM UP ^^
         R.reduce((acc, cur)=> {return acc + (acc.length > expandParam.length ? ',':'') + cur}, expandParam), // assemble URL param
