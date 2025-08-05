@@ -513,13 +513,14 @@ function autoPrefixSiteUrlWithBase (siteBase) {
         R.reduce((acc, cur)=> {return acc + (acc.length > expandParam.length ? ',':'') + cur}, expandParam), // assemble URL param
         R.uniq, // remove duplicates
         R.append('Editor'), // Always need editor!
+        R.append('Author'), // Always need author!
         R.map(s => s.substring(0, s.indexOf('/'))), // pick left side of first slash (should never be more than 1)
         R.filter(s=> s.indexOf('/')>-1), // keep those with a path slash
         R.map(R.trim), // trim space around field names
         R.split(',') // convert clause to array of parts
       )(selectClause)
 
-      urlQuery += expandClause // At very least this will be Editor!
+      urlQuery += expandClause // At very least this will be Editor and Author
 
     } else {
       // any lookups, User or UserMulti fields?
