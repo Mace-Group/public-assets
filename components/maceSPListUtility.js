@@ -524,7 +524,7 @@ function autoPrefixSiteUrlWithBase (siteBase) {
 
     } else {
       // any lookups, User or UserMulti fields?
-      let genericExpandClause = '&$expand=Editor'
+      let genericExpandClause = '&$expand=Editor,Author' // Always expand Editor and Author
       let genericSelect = '&$select=*,Editor/Title,Editor/EMail,Author/Title,Author/EMail'
       let aLookupsSingle = fnGetInternalNamesByTypeFromMap ('Lookup', mapFields)
       let aLookupsMulti = fnGetInternalNamesByTypeFromMap ('LookupMulti', mapFields)
