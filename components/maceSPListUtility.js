@@ -141,7 +141,7 @@ const getListFieldChoices = async function (listNameOrGuid, fieldName, siteBase 
     let response = await fetch(urlFields, getListOptionsForMethod('GET'))
     if (response.status <= 204) {
       let data = await response.json()
-      return data?.d?.Choices || []
+      return data?.value || data?.d?.Choices || []
     } else {
       console.error(response)
       cacheFailedRequests.push(response)
