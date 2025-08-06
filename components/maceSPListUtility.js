@@ -122,6 +122,38 @@ function autoPrefixSiteUrlWithBase (siteBase) {
   }
 
 /**
+ * Get the choices for a field in a SharePoint list
+ * @param {string} listNameOrGuid 
+ * @param {string} fieldName 
+ * @param {string} siteBase 
+ * @returns 
+ */
+const getListFieldChoices = async function (listNameOrGuid, fieldName, siteBase = SITE_BASE) {
+  siteBase = autoPrefixSiteUrlWithBase(siteBase) 
+  let urlListApi = `${siteBase}/_api/web/lists`
+  if (reIsGuidText.test(listNameOrGuid)) {
+    urlListApi += `('${listNameOrGuid}')`
+  } else {
+    urlListApi += `/getByTitle('${listNameOrGuid}')`
+  }
+  const urlFields = `${urlListApi}/fields/getByInternalNameOrTitle('${fieldName}')/Choices`
+  try {
+    let response = await fetch(urlFields, getListOptionsForMethod('GET'))
+    if (response.status <= 204) {
+      let data = await response.json()
+      return data?.d?.Choices || []
+    } else {
+      console.error(response)
+      cacheFailedRequests.push(response)
+      return []
+    }
+  } catch (error) {
+    console.error(`Failed to get choices for field "${fieldName}" in list "${listNameOrGuid}"\n${error.message}`)
+    return []
+  }
+}
+
+/**
  * @description internal translate the name to main part of rest URL
  * @param {string} listGuid
  * @param {string} siteBase - the URL to the SharePoint site when it is NOT the standard as configured in this library (default to standard if ommitted)
@@ -854,6 +886,8 @@ function autoPrefixSiteUrlWithBase (siteBase) {
   namespaceObject.addAttachmentToListItem = addAttachmentToListItem
   namespaceObject.getAttachmentFromListItemNameOrIndex = getAttachmentFromListItemNameOrIndex
   namespaceObject.deleteAttachmentFromListItemNameOrIndex = deleteAttachmentFromListItemNameOrIndex
+
+  namespaceObject.getListFieldChoices = getListFieldChoices
   return namespaceObject
 })(
   globalThis.maceSPListUtility || {} // ~~CONFIGURE HERE~~ Set the globalName required
