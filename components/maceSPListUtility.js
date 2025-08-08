@@ -316,6 +316,7 @@ const getListFieldChoices = async function (listNameOrGuid, fieldName, siteBase 
       out.editorName = R.pathOr('',['Editor','Title'], itm)
       out.createdOn = new Date(R.pathOr(null,['Created'], itm))
       out.createdBy = R.pathOr('',['Author','Title'], itm)
+      out.createdByEmail = R.pathOr('',['Author','EMail'], itm)
       return out
     }
     // Convert either an Array or a single object
