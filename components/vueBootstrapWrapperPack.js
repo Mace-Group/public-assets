@@ -1685,7 +1685,7 @@ let dhgBootstrapWrapperPack  = {
         } else {
           list = this.options.slice(0)
         } 
-        console.log(list)
+        // console.log(list)
         return list.indexOf(opt)
       }
     }, // The objects are proxies and not going to be ===, but Ramda whereEq a good test
