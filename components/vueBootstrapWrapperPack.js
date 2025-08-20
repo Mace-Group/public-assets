@@ -1602,8 +1602,12 @@ let dhgBootstrapWrapperPack  = {
       let value = ev.target.value
       
       if (this.isDateType) {
-        let isoDateTextForSharePoint = this.formatControlDateToSharePointIso(value)
-        value = isoDateTextForSharePoint
+        if (value===''){
+          value = null
+        } else {
+          let isoDateTextForSharePoint = this.formatControlDateToSharePointIso(value)
+          value = isoDateTextForSharePoint
+        }
       } else if (this.isNumberType) {
         let valueAsNumber 
         if (this.isCurrencyType) {
