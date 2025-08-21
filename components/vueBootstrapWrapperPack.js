@@ -1828,6 +1828,10 @@ let dhgBootstrapWrapperPack  = {
   },
   template:`<div :class="$attrs.class" :style="$attrs.style">
   <label v-if="!suppressMainLabel" :for="renderedControlId" :class="effectiveLabelClass">{{label}}</label>
+  <span v-if="required && !useGroup">
+    <span v-if="haveValue"><i :class="validIconClass"></i></span>
+    <span  v-if="!haveValue"><i :class="invalidIconClass"></i></span>
+  </span>
   <div class="input-group" v-if="useGroup">
     <span v-if="!suppressPrefixIcon" :id="'typeIcon-' + localId" class="input-group-text"><i :class="typeIconClass"></i></span>
     <textarea v-if="type === 'textarea'"
