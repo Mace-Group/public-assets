@@ -1320,6 +1320,7 @@ let dhgBootstrapWrapperPack  = {
     haveValue() {
       let v = this.modelValue
       if (typeof v === 'string' &&  v === '') return false;
+      if (Array.isArray(v) && v.length === 0) return false;
       return !(R.isNil(v))
     },
     typeIconClass() {
