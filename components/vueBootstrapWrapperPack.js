@@ -1696,11 +1696,19 @@ let dhgBootstrapWrapperPack  = {
     getBestOptionValue(opt) {
       if (typeof opt === 'object') {
         
-       
-        if (this.optionValueProperty) {
-          return opt[this.optionValueProperty]
+        const valueProperty = this.optionValueProperty
+        if (valueProperty) {
+          if (valueProperty==='self') {
+            if (opt.hasOwnProperty('self')) {
+              return opt.self
+            } else{
+              return opt
+            }
+          } else {
+            return opt[valueProperty]
+          }
         } else {
-          return opt.code ?? opt.key ?? opt.Id ?? opt.id ?? opt.name ?? opt.toString()
+          return opt.code ?? opt.key ?? opt.Id ?? opt.id ?? opt.name ?? opt.toString() // Make a best guess approach (poor choice code in hindsight - should have just returned teh object!)
         }
       } else {
         return opt
