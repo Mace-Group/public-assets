@@ -1848,6 +1848,7 @@ let dhgBootstrapWrapperPack  = {
     <select v-else-if="type === 'select'"
       class="form-select" 
       :readonly="readonly"
+      :disabled="readonly"
       v-model="boundSelectIndex"
       :id="renderedControlId"
       :style="getActiveOptionStyle"

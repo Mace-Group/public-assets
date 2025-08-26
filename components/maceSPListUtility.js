@@ -70,6 +70,7 @@ globalThis.maceSPListUtility = (function (namespaceObject) {
   // The following maps convert SharePoint List internal IDs to object properties to make coding life easier!
   
   const MAP_P2L_COMMON = [ // It will always be useful to know the Id, when last Modified (and who by)
+    ['Created', 'Created', 'Created Date'],
     ['Modified', 'Modified', 'Modified Date'],
     ['Id','Id', 'Internal ID', 'SharePoint List Id'],
     ['odata.etag', 'eTag', 'Edit Tag'],
@@ -391,6 +392,45 @@ const getListFieldChoices = async function (listNameOrGuid, fieldName, siteBase 
     logicalFieldsInput.forEach((prop,idx) => oTemplate = R.assoc(prop, null, oTemplate))
     return Object.assign(oTemplate, defaultObjects ||{})
   }
+
+  /**
+   * 
+   * @param {String} listNameOrGuid 
+   * @param {*} itemId 
+   * @param {*} maxItems 
+   * @param {*} siteBase 
+   * @returns 
+   */
+  async function getListItemVersionSummary(listNameOrGuid, itemId, maxItems=30, siteBase = SITE_BASE) {
+    siteBase = autoPrefixSiteUrlWithBase(siteBase) 
+    let listNameCopy
+    let urlListItemsBase
+    try {
+      if (reIsGuidText.test(listNameOrGuid)) {
+        listNameCopy = 'having unique identifier: ' + listNameOrGuid
+        urlListItemsBase = getSiteListRestUrlByGuid(listNameOrGuid, siteBase)
+      }  else {
+        listNameCopy =  listNameOrGuid
+        urlListItemsBase = getSiteListRestUrlByName(listNameOrGuid, siteBase)
+      }
+      let getUrl = `${urlListItemsBase}/items(${itemId})/versions?$select=VersionLabel,Created,Author,Editor,VersionId&$top=${maxItems}&$orderby=VersionLabel desc`
+      let response = await fetch(getUrl, getListOptionsForMethod('GET'))
+      if (response.status <= 204) {
+        let data = await response.json()
+        return fGetItemArrayFromRestData(data)
+      } else {
+        console.error(response)
+        cacheFailedRequests.push(response)
+        return []
+      }
+      
+    } catch (error) {
+      console.error(`Failed to get version summary for item #${itemId} in list "${listNameCopy}"\n${error.message}`)
+      return []      
+    }
+    
+  }
+
   /**
    * 
    * @param {string} listNameOrGuid - Guid or List Name
@@ -889,6 +929,7 @@ const getListFieldChoices = async function (listNameOrGuid, fieldName, siteBase 
   namespaceObject.deleteAttachmentFromListItemNameOrIndex = deleteAttachmentFromListItemNameOrIndex
 
   namespaceObject.getListFieldChoices = getListFieldChoices
+  namespaceObject.getListItemVersionSummary = getListItemVersionSummary 
   return namespaceObject
 })(
   globalThis.maceSPListUtility || {} // ~~CONFIGURE HERE~~ Set the globalName required
