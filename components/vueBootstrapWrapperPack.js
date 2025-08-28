@@ -669,7 +669,7 @@ let dhgBootstrapWrapperPack  = {
                 break
               case 'success':
                 console.log('one drive picker SUCCESSm 1st file will be used ...')
-                console.log(pickedData.items)
+                // console.log(pickedData.items)
 
                 this.$emit('filePicked', pickedData.items[0])
                 this.cancelPopup()
@@ -704,12 +704,12 @@ let dhgBootstrapWrapperPack  = {
       startListening: function () {
         let fnMessageListener = this.receiveMessage.bind(this)
         this.fnMessageListener = fnMessageListener
-        console.log('Listening for messages post from OneDrive.aspx page')
+        // console.log('Listening for messages post from OneDrive.aspx page')
         window.addEventListener('message', fnMessageListener, false)
       },
       stopListening: function () {
         if (this.fnMessageListener) {
-          console.log('Stop listening for messages post from OneDrive.aspx page')
+          // console.log('Stop listening for messages post from OneDrive.aspx page')
           try {
             window.removeEventListener('message', this.fnMessageListener)
             this.fnMessageListener = null
@@ -1275,7 +1275,7 @@ let dhgBootstrapWrapperPack  = {
     boundSelectIndex:{
       handler(newIndex,oldIndex) {
         if (newIndex === oldIndex){ 
-          console.log('unchanged boundSelectIndex triggered (watching abort!)')
+          // console.log('unchanged boundSelectIndex triggered (watching abort!)')
           return 
         }
         if (this.pushedBoundSelectedValue) return 
@@ -1664,7 +1664,7 @@ let dhgBootstrapWrapperPack  = {
       if (typeof opt === 'object'){
         let testFunction
         if (this.optionValueProperty) {
-          console.log('Here in the object specified value')
+          
           testFunction  = R.eqProps(this.optionValueProperty) // Current to a 2 parameter test function
         } else if (this.optionTextProperty){
           testFunction  = R.eqProps(this.optionTextProperty) // Current to a 2 parameter test function
@@ -1673,12 +1673,12 @@ let dhgBootstrapWrapperPack  = {
         } else {
           testFunction = R.equals
         }      
-        return this.options.findIndex(itm => testFunction(itm,opt))
+        return this.options?.findIndex(itm => testFunction(itm,opt)) || -1
       } else {
         // because the "opt" is a simple value we need to reduce the options to a simple value too
         let list = []
         if (this.optionValueProperty) {
-          console.log('Here in the simple specified value')
+          
           list = this.options.map(itm => itm[this.optionValueProperty])
           
         } else if (this.optionTextProperty){
