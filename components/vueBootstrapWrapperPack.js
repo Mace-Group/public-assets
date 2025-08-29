@@ -1238,6 +1238,7 @@ let dhgBootstrapWrapperPack  = {
     optionTextProperty: {type: String, required: false, default: ''}, // Property name to use for display text
     optionFormatterFunction: {type: Function, required: false, default: null},
     optionBindObject: {type: Boolean, required: false, default: false},
+    optionAllowNoSelection: {type: Boolean, required: false, default: false},
     selectMulti: {type: Boolean, required: false, default: false},
     
     switchOnValue: {type: undefined, required: false, default: true},
@@ -1853,7 +1854,7 @@ let dhgBootstrapWrapperPack  = {
       :id="renderedControlId"
       :style="getActiveOptionStyle"
     >
-      <option disabled >(Choose ...)</option>
+      <option disabled="!optionAllowNoSelection" >(Choose ...)</option>
       <option v-for="(opt,idx) in options" :key="'opt-' + localId + '-' + idx" :value="idx" :style="getOptionStyle(opt)">
       {{getBestOptionText(opt)}}
       </option>
