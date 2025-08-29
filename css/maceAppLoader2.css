@@ -17,7 +17,7 @@
   --purple500: #791D7E;
   --trans-dur: 0.3s;
   color-scheme: light dark;
-  font-size: clamp(1rem, 0.9rem + 0.5vw, 1.5rem);
+  
 }
 
 /* body {
