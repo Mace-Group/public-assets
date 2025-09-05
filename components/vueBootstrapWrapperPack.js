@@ -1673,8 +1673,9 @@ let dhgBootstrapWrapperPack  = {
           testFunction = (a,b) => this.optionFormatterFunction(a) == this.optionFormatterFunction(b)
         } else {
           testFunction = R.equals
-        }      
-        return this.options?.findIndex(itm => testFunction(itm,opt)) || -1
+        }
+        let idx =   this.options?.findIndex(itm => testFunction(itm,opt))    
+        return  typeof idx==='number'?idx: -1
       } else {
         // because the "opt" is a simple value we need to reduce the options to a simple value too
         let list = []
