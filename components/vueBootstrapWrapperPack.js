@@ -1661,39 +1661,43 @@ let dhgBootstrapWrapperPack  = {
     },
     getOptionIndex(opt) { 
       // need to determine method to compare passed option to items in list of options
-      
-      if (typeof opt === 'object'){
-        let testFunction
-        if (this.optionValueProperty) {
-          
-          testFunction  = R.eqProps(this.optionValueProperty) // Current to a 2 parameter test function
-        } else if (this.optionTextProperty){
-          testFunction  = R.eqProps(this.optionTextProperty) // Current to a 2 parameter test function
-        } else if (this.optionFormatterFunction) {
-          testFunction = (a,b) => this.optionFormatterFunction(a) == this.optionFormatterFunction(b)
+      try{
+        if (typeof opt === 'object'){
+          let testFunction
+          if (this.optionValueProperty) {
+            
+            testFunction  = R.eqProps(this.optionValueProperty) // Current to a 2 parameter test function
+          } else if (this.optionTextProperty){
+            testFunction  = R.eqProps(this.optionTextProperty) // Current to a 2 parameter test function
+          } else if (this.optionFormatterFunction) {
+            testFunction = (a,b) => this.optionFormatterFunction(a) == this.optionFormatterFunction(b)
+          } else {
+            testFunction = R.equals
+          }
+          let idx =   this.options?.findIndex(itm => testFunction(itm,opt))    
+          return  typeof idx==='number'?idx: -1
         } else {
-          testFunction = R.equals
+          // because the "opt" is a simple value we need to reduce the options to a simple value too
+          let list = []
+          if (this.optionValueProperty) {
+            
+            list = this.options.map(itm => itm[this.optionValueProperty])
+            
+          } else if (this.optionTextProperty){
+            list = this.options.map(itm => itm[this.optionTextProperty])
+            
+          } else if (this.optionFormatterFunction) {
+            list = this.options.map(itm => this.optionFormatterFunction(itm))
+            
+          } else {
+            list = this.options.slice(0)
+          } 
+          // console.log(list)
+          return list.indexOf(opt)
+          
         }
-        let idx =   this.options?.findIndex(itm => testFunction(itm,opt))    
-        return  typeof idx==='number'?idx: -1
-      } else {
-        // because the "opt" is a simple value we need to reduce the options to a simple value too
-        let list = []
-        if (this.optionValueProperty) {
-          
-          list = this.options.map(itm => itm[this.optionValueProperty])
-          
-        } else if (this.optionTextProperty){
-          list = this.options.map(itm => itm[this.optionTextProperty])
-          
-        } else if (this.optionFormatterFunction) {
-          list = this.options.map(itm => this.optionFormatterFunction(itm))
-          
-        } else {
-          list = this.options.slice(0)
-        } 
-        // console.log(list)
-        return list.indexOf(opt)
+      } catch(error) {
+        return -1    
       }
     }, // The objects are proxies and not going to be ===, but Ramda whereEq a good test
     getBestOptionValue(opt) {
