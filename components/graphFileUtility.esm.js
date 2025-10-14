@@ -1,7 +1,7 @@
 
 // graphFileUtility.js
 
-  'use strict'
+
   console.log('Loading Module graphFileUtil.js') // This is useful to trace any issues with load sequence
   const semVer = {major:2, minor:1, build: 0}
   
@@ -122,12 +122,12 @@
     }
   }
 
-  function getVersion(){
+  export function getVersion(){
     return `${semVer.major}.${semVer.minor}.${semVer.build}`
   }
 
 
-export default  graphFileUtility = {
+export default {
     getSiteDriveFolderIdChildren,
     getSiteDrivePathFolderContent,
     getSiteDrives,
