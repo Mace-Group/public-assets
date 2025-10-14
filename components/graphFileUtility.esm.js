@@ -1,5 +1,5 @@
 
-import {} from 'https://cdn.jsdelivr.net/npm/ramda@0.32/dist/ramda.min.js'
+// graphFileUtility.js
 
   'use strict'
   console.log('Loading Module graphFileUtil.js') // This is useful to trace any issues with load sequence
@@ -12,7 +12,7 @@ import {} from 'https://cdn.jsdelivr.net/npm/ramda@0.32/dist/ramda.min.js'
   
 
   // Define various method functions as required
-  async function getSiteDriveFileHistory (site, drive, file, filters, limitCount = 0) {
+  export async function getSiteDriveFileHistory (site, drive, file, filters, limitCount = 0) {
     if (!site || !drive || !file) {
       console.error(`Invalid data used to get get file history!\nSite: ${site}\nDrive: ${drive}\nFile: ${file}`)
       return []
@@ -42,7 +42,7 @@ import {} from 'https://cdn.jsdelivr.net/npm/ramda@0.32/dist/ramda.min.js'
     }
   }
   
-  async function getSiteDriveFileDetails (site, drive, file) {
+  export async function getSiteDriveFileDetails (site, drive, file) {
     if (typeof site === 'string') {
       if (!site.endsWith('/')) site += '/'
     }
@@ -52,7 +52,7 @@ import {} from 'https://cdn.jsdelivr.net/npm/ramda@0.32/dist/ramda.min.js'
     let data = await resp.json()
     return data
   }
-  async function getSiteDrives (siteUrl) {
+  export async function getSiteDrives (siteUrl) {
     let url =`${siteUrl}/_api/v2.1/drives`
     try {
     let resp = await fetch(url,_getOptions)
@@ -64,7 +64,7 @@ import {} from 'https://cdn.jsdelivr.net/npm/ramda@0.32/dist/ramda.min.js'
     }
   }
 
-  async function getSiteDrivePathFolderContent (siteUrl, driveId, path, filesFoldersOrBoth = 'BOTH') {
+  export async function getSiteDrivePathFolderContent (siteUrl, driveId, path, filesFoldersOrBoth = 'BOTH') {
     let sourceFolderId = '' // Will be populate after an initial API call to verify that the path is valid and a folder
     try {
       let urlToGetEntryFolder =`${siteUrl}/_api/v2.1/drives/${driveId}/root:${path}` // IMPORTANT: must ensure that path has trailing slash to get the children endpoint!
@@ -101,14 +101,14 @@ import {} from 'https://cdn.jsdelivr.net/npm/ramda@0.32/dist/ramda.min.js'
     return dataChildrenQuery.value
   }
 
-  async function getSiteDriveFolderIdChildren (siteUrl, driveId, folderId) {
+  export async function getSiteDriveFolderIdChildren (siteUrl, driveId, folderId) {
     let urlToGetChildren = `${siteUrl}/_api/v2.1/drives/${driveId}/items/${folderId}/children`
     let respChildrenQuery = await fetch(urlToGetChildren, _getOptions)
     let dataChildrenQuery = await respChildrenQuery.json()
     return dataChildrenQuery.value
   }
 
-  async function getGraphItemFolderPath(item){
+  export async function getGraphItemFolderPath(item){
     if (item?.parentReference.id) {
       let pRef = item.parentReference
       let folder = await getSiteDriveFileDetails(this.siteUrl, pRef.driveId, pRef.id)
