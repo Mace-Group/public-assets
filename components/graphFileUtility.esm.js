@@ -122,14 +122,9 @@ import {} from 'https://cdn.jsdelivr.net/npm/ramda@0.32/dist/ramda.min.js'
     }
   }
 
-  namespaceObject.getSiteDriveFolderIdChildren = getSiteDriveFolderIdChildren
-  namespaceObject.getSiteDrivePathFolderContent = getSiteDrivePathFolderContent
-  namespaceObject.getSiteDrives = getSiteDrives
-  namespaceObject.getSiteDriveFileHistory = getSiteDriveFileHistory
-  namespaceObject.getSiteDriveFileDetails = getSiteDriveFileDetails
-  namespaceObject.getGraphItemFolderPath = getGraphItemFolderPath
-  namespaceObject.getVersion = () => `${semVer.major}.${semVer.minor}.${semVer.build}`
-  return namespaceObject
+  function getVersion(){
+    return `${semVer.major}.${semVer.minor}.${semVer.build}`
+  }
 
 
 export default  graphFileUtility = {
