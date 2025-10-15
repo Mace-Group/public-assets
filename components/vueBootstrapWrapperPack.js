@@ -77,6 +77,7 @@ let dhgBootstrapWrapperPack  = {
     props:{
       title: {type: String,  default: 'Popup Info'},
       message: {type: String,  default: 'Additional Information'},
+      allowHtml: {type: Boolean,  default: false},
       iconClasses: {type: String,  default: 'fas fa-info-circle'},
       buttonClasses: {type: String,  default: 'link-secondary '},
       tabindex: {type: Number,  default: 0},
@@ -93,6 +94,9 @@ let dhgBootstrapWrapperPack  = {
       },
 
     },
+    data() {return {
+      id: `popover-${Math.random().toString().substring(2)}`
+    }},
     mounted() {
       const options = {
         trigger: 'focus'
@@ -101,10 +105,11 @@ let dhgBootstrapWrapperPack  = {
     },
     template: `
   <a ref="anchor" :tabindex="tabindex" 
+    :id="id"
     :class="buttonClassesEvaluated" role="button"
     data-bs-toggle="popover" data-bs-trigger="focus"
     :data-bs-title="title" 
-    :data-bs-content="message" href="JAVASCRIPT:void(0)"><i :class="iconClassesEvaluated"></i>
+    :data-bs-content="message" :data-bs-html="allowHtml" :href="'#'+ id"><i :class="iconClassesEvaluated"></i>
   {{buttonText}}</a>
     `
   },
