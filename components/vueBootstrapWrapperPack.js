@@ -55,12 +55,27 @@
 
 // During debugging & development, uncomment the following line to enable an intelligent editor to provide tooltips
 // import Vue from "https://cdnjs.cloudflare.com/ajax/libs/vue/3.3.4/vue.global.min.js"
-let dhgBootstrapWrapperPack  = {
-  install  (Vue, options) {
-    
-    Vue.component('vbToast', this.vbToast)
-    Vue.component('vbModal', this.vbModal)
-    Vue.component('vbOffcanvas', this.vbOffcanvas)
+;(function(root, factory) {
+  if (typeof define === 'function' && define.amd) {
+    // AMD
+    define([], factory);
+  } else if (typeof module === 'object' && module.exports) {
+    // Node/CommonJS
+    module.exports = factory();
+  } else {
+    // Browser globals (root is window)
+    // Check if already defined to prevent double loading
+    if (!root.dhgBootstrapWrapperPack) {
+      root.dhgBootstrapWrapperPack = factory();
+    }
+  }
+}(typeof self !== 'undefined' ? self : this, function() {
+  // Return the component library
+  return {
+    install(Vue, options) {
+      Vue.component('vbToast', this.vbToast)
+      Vue.component('vbModal', this.vbModal)
+      Vue.component('vbOffcanvas', this.vbOffcanvas)
     Vue.component('sharePointFilePicker', this.sharePointFilePicker)
     Vue.component('RagSet', this.RagSet)
     Vue.component('ConfirmAction', this.ModalConfirmAction)
@@ -2020,15 +2035,10 @@ let dhgBootstrapWrapperPack  = {
 </div>`
  }
 
+  } // end component library object
+})); // end UMD wrapper
+
+// Automatically install if Vue has been added to the global scope.
+if (typeof window !== 'undefined' && window.Vue) {
+  window.Vue.use(dhgBootstrapWrapperPack);
 }
-
-
-
-
-
-
-// // Automatically install if Vue has been added to the global scope.
-// if (typeof window !== 'undefined' && window.Vue) {
-
-//   window.Vue.use(dhgBootstrapWrapperPack)
-// }
