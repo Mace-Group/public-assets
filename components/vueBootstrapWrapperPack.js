@@ -1893,7 +1893,7 @@
       class="form-control"
       @change="onChange($event)"
       :id="renderedControlId"
-      
+      :min="min" :max="max"
     >
 
     <input v-else-if="type === 'datetime-local'"
