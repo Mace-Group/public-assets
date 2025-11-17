@@ -1270,8 +1270,26 @@
     suppressPrefixIcon: {type: Boolean, required: false, default: false},
     
     rows: {type: String, required: false, default: '3'},
-    min: {type: Number, required: false},
-    max: {type: Number, required: false},
+    min: {
+      validator(value,props) {
+        if (props.type === 'number' || props.type === 'percent' || props.type === 'currency') {
+          return typeof value === 'number'
+        } else if (props.type === 'date' || props.type === 'datetime-local') {
+          return typeof value === 'string' // Date strings in ISO format
+        }
+      },
+      default: undefined
+    },
+    max: {
+      validator(value,props) {
+        if (props.type === 'number' || props.type === 'percent' || props.type === 'currency') {
+          return typeof value === 'number'
+        } else if (props.type === 'date' || props.type === 'datetime-local') {
+          return typeof value === 'string' // Date strings in ISO format
+        }
+      },
+      default: undefined
+    },
     step: {type: Number, required: false},
    // fixedDecimals: {type: Number, required: false},
     maxlength: {type: String, required: false, default: '255'}, // Particularly for single line input
