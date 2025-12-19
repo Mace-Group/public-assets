@@ -1,6 +1,6 @@
 // ESM version of maceSPListUtility
-import * as R from 'ramda';
-import moment from 'moment';
+import * as R from 'https://cdn.jsdelivr.net/npm/ramda@0.32.0/+esm'
+import moment from 'https://cdn.jsdelivr.net/npm/moment@2.30.1/+esm'
 
 const SemVer = '2.1.1';
 
