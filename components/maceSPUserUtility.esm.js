@@ -1,4 +1,5 @@
-import * as R from 'ramda';
+import * as R from 'https://cdn.jsdelivr.net/npm/ramda@0.32.0/+esm'
+
 
 
 const SemVer = '2.1.2';
