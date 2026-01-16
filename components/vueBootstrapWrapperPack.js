@@ -1700,7 +1700,9 @@
     getOptionIndex(opt) { 
       // need to determine method to compare passed option to items in list of options
       try{
-        if (typeof opt === 'object'){
+        if(opt === null || typeof opt === 'undefined'){// most common when using a list of objects to opick from and the current object is null or undefined
+          return -1
+        }else if (typeof opt === 'object') {
           let testFunction
           if (this.optionValueProperty) {
             
