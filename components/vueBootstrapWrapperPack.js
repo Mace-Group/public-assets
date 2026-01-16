@@ -1256,6 +1256,7 @@
     optionValueProperty: {type: String, required: false, default: ''}, // Property name to bind value to
     optionValuePropertyList: {type: Array, required: false, default: ['Id','ID','id', 'key','code', 'name']}, // Property names that *might* be an ID of an object (when not specified)
     optionTextProperty: {type: String, required: false, default: ''}, // Property name to use for display text
+    optionSelfKey: {type: String, required: false, default: 'Id'}, // Property name to use for key when binding object
     optionFormatterFunction: {type: Function, required: false, default: null},
     optionBindObject: {type: Boolean, required: false, default: false},
     optionAllowNoSelection: {type: Boolean, required: false, default: false},
@@ -1705,8 +1706,11 @@
         }else if (typeof opt === 'object') {
           let testFunction
           if (this.optionValueProperty) {
-            
-            testFunction  = R.eqProps(this.optionValueProperty) // Current to a 2 parameter test function
+            if (this.optionValueProperty==='self') {
+              testFunction = R.eqProps(this.optionSelfKey) // By default Id used here which will suit lists of objects from SharePoint etc.
+            } else{
+              testFunction  = R.eqProps(this.optionValueProperty) // Current to a 2 parameter test function
+            }
           } else if (this.optionTextProperty){
             testFunction  = R.eqProps(this.optionTextProperty) // Current to a 2 parameter test function
           } else if (this.optionFormatterFunction) {
